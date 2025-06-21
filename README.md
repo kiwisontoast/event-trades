@@ -1,0 +1,1 @@
+main was for initial csv creation and analysis, subsequent files (finalgame pred and game4pred) are for the associated csv files. The basealgo file has the basic algorithm used in both of those other models. The json files hold the actual trades the model makes.
