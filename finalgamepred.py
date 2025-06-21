@@ -2,14 +2,14 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import json
-from newgametest import FilteredArbitrageTrader
+from basealgo import FilteredArbitrageTrader
 
 
 class OriginalArbitrageTrader:
     def __init__(
         self,
         baseline_forecast=69.0,
-        transaction_cost=0.002,
+        transaction_cost=0.000,
         max_position_size=1000,
         min_deviation=0.5,
     ):
@@ -23,7 +23,7 @@ class OriginalArbitrageTrader:
             min_deviation (float): Minimum deviation to trigger trade
         """
         self.baseline = baseline_forecast
-        self.transaction_cost = transaction_cost
+        self.transaction_cost = 0
         self.max_position = max_position_size
         self.min_deviation = min_deviation
         self.position = 0  # Current position (-1000 to +1000)
@@ -244,9 +244,30 @@ class OriginalArbitrageTrader:
         Returns:
             dict: Backtest results
         """
-        df = pd.read_csv(deviation_data_file)
-        df["Timestamp"] = pd.to_datetime(df["Timestamp"], format="%Y-%m-%d %H:%M:%S")
+        from basealgo import FilteredArbitrageTrader
+
+        trader_filter = FilteredArbitrageTrader()
+        from basealgo import FilteredArbitrageTrader
+
+        trader_filter = FilteredArbitrageTrader()
+        analysis_result = trader_filter.analyze_data_before_cutoff(deviation_data_file)
+        timestamps = analysis_result["timestamps"]
+        forecasts = analysis_result["forecasts"]
+        del analysis_result["timestamps"]
+        del analysis_result["forecasts"]
+        data = [
+            {**analysis_result, "Timestamp": ts, "Forecast": fc}
+            for ts, fc in zip(timestamps, forecasts)
+        ]
+        df = pd.DataFrame(data)
+        df["Timestamp"] = timestamps
         df = df.sort_values("Timestamp")
+        df = df.sort_values("Timestamp")
+        if "Forecast_Value" not in df.columns:
+            df["Forecast_Value"] = df["Forecast"].str.rstrip("%").astype(float)
+
+        if "Forecast_Value" not in df.columns:
+            df["Forecast_Value"] = df["Forecast"].str.rstrip("%").astype(float)
 
         print(f"Backtesting strategy on {len(df)} deviation events...")
         print(f"Starting cash: ${self.cash}")
@@ -325,4 +346,4 @@ def run_arbitrage_analysis(csv_file):
 
 
 if __name__ == "__main__":
-    run_arbitrage_analysis("kalshi-chart-data-kxnbagame-25jun19okcind.csv")
+    run_arbitrage_analysis("oklahomavsindianafinal.csv")
